@@ -12,10 +12,10 @@ To optimize the efficiency of the operations (focusing get operations), I used t
 Maps for Fast Lookups (O(1)):
 
 For attributes like ID, country, age and names (Both full or partial matching), I used Maps to store and retrieve users in O(1) time complexity. Each attribute acts as the key, and the corresponding users are stored as values.
-**usersIdMap**: Stores users by their unique ID for fast lookups.
-**usersCountryMap**: Stores users list by their country, allowing efficient retrieval by country.
-**usersAgeMap**: Stores users list by their age, making it easy to fetch users based on age.
-**usersPrefixMap**: Stores users list by their First/Last name, or their by name Prefix (Minimum of 3 chars).
+* **usersIdMap**: Stores users by their unique ID for fast lookups.
+* **usersCountryMap**: Stores users list by their country, allowing efficient retrieval by country.
+* **usersAgeMap**: Stores users list by their age, making it easy to fetch users based on age.
+* **usersPrefixMap**: Stores users list by their First/Last name, or their by name Prefix (Minimum of 3 chars).
 
 ### **2. Why I Chose Prefix Map Over Trie**
 While a Trie could be used for prefix matching, I chose the Prefix Map for the following reasons:
