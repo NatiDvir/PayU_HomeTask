@@ -1,0 +1,23 @@
+{
+  "name": "backend-home-assignment-junior",
+  "version": "1.0.0",
+  "description": "## Requirements Use the file `data.csv` as the data source.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
