@@ -23,7 +23,7 @@ class MemoryDB {
         // Required here to prevent circular dependency
         const User = require('../models/users');
 
-        const user = new User(id, email, name, dob, country);
+        const user = new User(id, email, name, dob, country.trim());
         const [firstName, lastName] = user.name.toLowerCase().split(' ');
         const age = user.getAge();
   
