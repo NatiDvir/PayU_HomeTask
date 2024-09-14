@@ -12,7 +12,7 @@ const BAD_QUERY_MSG = `Only one query param is supported, and it must be one of 
 const getUserById = async (req, res) => {
   let id = req.params.id;
   try {
-    let user = await UserManager.getById(id);
+    let user = await UserModel.getById(id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
