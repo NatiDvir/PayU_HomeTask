@@ -10,7 +10,7 @@ class MemoryDB {
      * Loads data from a CSV file and maps users by ID, country, age, and name prefixes for efficient lookups.
     */
     loadData(csvData) {
-      const rows = csvData.split('\n').slice(1, 10);
+      const rows = csvData.split('\n').slice(1);
       rows.forEach((row, index) => {
         const [id, email, name, dob, country] = row.split(',');
 
