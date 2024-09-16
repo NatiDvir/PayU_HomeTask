@@ -2,8 +2,8 @@
 
 ## Changelog (Version 1.1)
 * **Dynamic Age Calculation**: Age is now calculated dynamically from DOB at the time of request, ensuring up-to-date accuracy.
-* **Optimized Deletion**: User deletion is now O(1) with the use of an index map, improving performance by swapping and popping elements.
-* **API Tests Added**: API-level tests have been implemented to ensure the correct functionality of all endpoints.
+* **Optimized Deletion**: User deletion is now O(1) with the use of an index map, improving performance by swapping and popping users.
+* **API Tests Added**: API-level tests have been implemented for all endpoints.
 
 ## Overview
 This project implements a memory-based API that handles user data stored in data.csv. 
