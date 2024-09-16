@@ -1,30 +1,12 @@
-const MemoryDB = require('../datastore/MemoryDB'); 
-
+const MemoryDB = require('../datastore/MemoryDB');
+const { swapAndPop } = require('../utils/ArrayUtils')
 class User {
-    constructor(id, email, name, dob, country) {
+    constructor(id, email, name, dob, country, mapIndexes) {
         this.id = id;
         this.email = email;
         this.name = name;
         this.dob = dob;
         this.country = country;
-    }
-
-    /**
-     * Calculate user's age based on birthday in DD/MM/YYYY format
-     * @returns {string}
-     */
-    getAge() {
-        const [day, month, year] = this.dob.split('/');
-        const birthDate = new Date(`${year}-${month}-${day}`);
-        const currentDate = new Date();
-
-        let age = currentDate.getFullYear() - birthDate.getFullYear();
-        const monthDifference = currentDate.getMonth() - birthDate.getMonth();
-
-        if (monthDifference < 0 || (monthDifference === 0 && currentDate.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age.toString();
     }
 
     /**
@@ -50,8 +32,8 @@ class User {
      * @param {string} age 
      * @returns {User[] | []} 
      */
-    static getByAge(age) {
-        return MemoryDB.usersAgeMap.get(age) || [];
+    static getByDob(dob) {
+        return MemoryDB.usersDobMap.get(dob) || [];
     }
 
     /**
@@ -64,50 +46,72 @@ class User {
     }
 
     /**
-     * Delete user by ID and remove from all related maps
-     * @param {string} id 
-     * @returns {boolean}
-     */
+    * Delete user by ID and remove from all related maps
+    * @param {string} id 
+    * @returns {boolean}
+    */
     static deleteById(id) {
         const user = MemoryDB.usersIdMap.get(id);
         if (!user) return false;
+
+        const userIndexes = MemoryDB.indexesMap.get(id);
 
         // Remove from usersIdMap
         MemoryDB.usersIdMap.delete(id);
 
         // Remove from usersCountryMap
-        const countryUsers = MemoryDB.usersCountryMap.get(user.country).filter(u => u.id !== id);
-        MemoryDB.usersCountryMap.set(user.country, countryUsers);
+        const countryUsers = MemoryDB.usersCountryMap.get(user.country);
+        if (countryUsers) {
+            swapAndPop(countryUsers, userIndexes.country, 'country');
+        }
 
-        // Remove from usersAgeMap
-        const age = user.getAge();
-        const ageUsers = MemoryDB.usersAgeMap.get(age).filter(u => u.id !== id);
-        MemoryDB.usersAgeMap.set(age, ageUsers);
+        // Remove from usersDobMap
+        const dobUsers = MemoryDB.usersDobMap.get(user.dob);
+        if (dobUsers) {
+            swapAndPop(dobUsers, userIndexes.dob, 'dob');
+        }
+        
+        // Remove full name from userPrefixMap
+        const fullName = user.name.toLowerCase();
+        const fullNameUsers = MemoryDB.usersPrefixMap.get(fullName);
+        if (fullNameUsers && userIndexes.namePrefix.has(fullName)) {
+            const fullNameIndex = userIndexes.namePrefix.get(fullName);
+            swapAndPop(fullNameUsers, fullNameIndex, 'namePrefix', fullName);
+        }
+        
+        // Remove partial names from usersPrefixMap
+        const [firstName, lastName] = fullName.split(' ');
 
-        // Remove from usersPrefixMap
-        const [firstName, lastName] = user.name.toLowerCase().split(' ');
-        [firstName, lastName].forEach(namePart => {
-            if (namePart) {
-                User.removeFromNamePrefix(namePart, id);
+        [firstName, lastName].forEach(name => {
+            if (name) {
+                User.removeFromNamePrefix(name, id);
             }
         });
-
+        
+        // Remove from indexesMap
+        MemoryDB.indexesMap.delete(id);
+        
         return true;
     }
 
     /**
-     * Deletes a user by their ID and removes them from all relevant Maps.
-     * Operates in linear time (O(n)) because for each shared attribute (country, age, name),
-     * we have to filter out the user from the list associated with that attribute.
-     * @param {string} name 
-     * @param {string} id 
+     * Deletes a user by their ID and removes them from all relevant name prefixes.
+     * @param {string} namePart
+     * @param {string} id
      */
-    static removeFromNamePrefix(name, id) {
-        for (let i = 3; i <= name.length; i++) {
-            const prefix = name.slice(0, i);
+    static removeFromNamePrefix(namePart, id) {
+        const userIndexes = MemoryDB.indexesMap.get(id);
+
+        for (let i = 3; i <= namePart.length; i++) {
+            const prefix = namePart.slice(0, i).toLowerCase();
             const users = MemoryDB.usersPrefixMap.get(prefix);
-            if (users) {
-                MemoryDB.usersPrefixMap.set(prefix, users.filter(u => u.id !== id));
+
+            if (users && userIndexes.namePrefix.has(prefix)) {
+                const prefixIndex = userIndexes.namePrefix.get(prefix);
+
+                if (prefixIndex !== undefined && users.length > prefixIndex) {
+                    swapAndPop(users, prefixIndex, 'namePrefix', prefix);
+                }
             }
         }
     }

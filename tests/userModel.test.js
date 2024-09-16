@@ -28,7 +28,7 @@ describe('MemoryDB & UserModel Tests', () => {
 
   // Test getting users by age
   test('should retrieve users by age', () => {
-    const users = UserModel.getByAge('39'); // Bob Lee should be 40 years old
+    const users = UserModel.getByDob('05/02/1985'); 
     expect(users.length).toBe(1);
     expect(users[0].name).toBe('Cristiano Ronaldo');
   });
@@ -56,7 +56,7 @@ describe('MemoryDB & UserModel Tests', () => {
     expect(userAfterDelete).toBeNull();
 
     const [ageUserArray, countryUserArray, nameUserArray] = [
-      UserModel.getByAge('39'),
+      UserModel.getByDob('05/02/1985'),
       UserModel.getByCountry('PT'),
       UserModel.getByName('Cris')
     ];

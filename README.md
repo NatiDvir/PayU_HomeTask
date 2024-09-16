@@ -1,5 +1,10 @@
 # PayU Home Assignment - In-Memory Users API
 
+## Changelog (Version 1.1)
+* **Dynamic Age Calculation**: Age is now calculated dynamically from DOB at the time of request, ensuring up-to-date accuracy.
+* **Optimized Deletion**: User deletion is now O(1) with the use of an index map, improving performance by swapping and popping elements.
+* **API Tests Added**: API-level tests have been implemented to ensure the correct functionality of all endpoints.
+
 ## Overview
 This project implements a memory-based API that handles user data stored in data.csv. 
 It supports multiple operations to get single or multiple users based on different attributes (ID, country, age, and name), and delete users by ID.
@@ -14,8 +19,9 @@ Maps for Fast Lookups (O(1)):
 For attributes like ID, country, age and names (Both full or partial matching), I used Maps to store and retrieve users in O(1) time complexity. Each attribute acts as the key, and the corresponding users are stored as values.
 * **usersIdMap**: Stores users by their unique ID for fast lookups.
 * **usersCountryMap**: Stores users list by their country,  allowing getting users by country.
-* **usersAgeMap**: Stores users list by their age, allowing getting users by age.
+* **usersDobMap**: Stores users list by their DOB, allowing getting users by age.
 * **usersPrefixMap**: Stores users list by their full name, first/last names, or their by name Prefix (Minimum of 3 chars).
+* **indexesMap**: Stores users indexes within all maps to ensure optimal deletion time complexity of O(1) by a swap-and-pop logic.
 
 ### **2. Why I Chose Prefix Map Over Trie**
 While a Trie could be used for prefix matching, I chose the Prefix Map for the following reasons:

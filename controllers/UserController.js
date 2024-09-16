@@ -51,7 +51,7 @@ const getUsers = async (req, res) => {
         result = await UserModel.getByName(query.name);
         break;
       case 'age':
-        result = await UserModel.getByAge(query.age);
+        result = await getUsersByAge(query.age);
         break;
       default:
         return res.status(400).json({ message: BAD_QUERY_MSG });
@@ -62,7 +62,6 @@ const getUsers = async (req, res) => {
 
   res.json(result);
 };
-
 
 /**
  * Delete user by ID
@@ -80,6 +79,35 @@ const deleteUserById = async (req, res) => {
     return res.status(500).json({ message: 'Error during delete user' });
   }
 };
+
+/**
+ * Get users by age by calculating relevant DOBs and getting users from the model
+ * @param {number} age 
+ * @returns {User[]}
+ */
+const getUsersByAge = async (age) => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  
+  // Calculate the start and end of year's valid dobs
+  const startDob = new Date(currentYear - age - 1, currentDate.getMonth(), currentDate.getDate());
+  const endDob = new Date(currentYear - age, currentDate.getMonth(), currentDate.getDate());
+
+  let users = [];
+  
+  // Iterate over all days within possible range
+  for (let currentDob = new Date(startDob); currentDob <= endDob; currentDob.setDate(currentDob.getDate() + 1)) {
+      const dob = currentDob.toLocaleDateString('en-GB'); // Format as DD/MM/YYYY
+      const usersByDob = await UserModel.getByDob(dob);
+      
+      if (usersByDob.length) {
+          users = users.concat(usersByDob);
+      }
+  }
+
+  return users;
+};
+
 
 module.exports = {
   getUserById,
